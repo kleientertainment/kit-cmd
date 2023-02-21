@@ -1,3 +1,16 @@
+# build binaries
+build/bin
+
+# node
+node_modules
+
+# frontend assets
+frontend/dist
+
+# application config
+config.json
+
+## from https://github.com/github/gitignore
 # Binaries for programs and plugins
 *.exe
 *.exe~
@@ -8,8 +21,40 @@
 # Test binary, built with `go test -c`
 *.test
 
+# Go workspace
+/go.work
+/go.work.sum
+
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
 
-# Dependency directories (remove the comment below to include it)
-# vendor/
+## Klei specific
+
+# generated in makefile for docker usage
+/docker_run_app.sh
+
+# Compiled Object files, Static and Dynamic libs (Shared Objects)
+*.o
+*.a
+*.so
+
+# Credentials that should not be committed
+# for example xxxx_integration_creds_gitignored_test.go
+*_gitignored*
+
+# Idea
+.idea
+
+#vi
+*.swp
+
+# VScode
+/.vscode
+__debug_bin
+debug.test
+
+# Visual Studio
+/*.sln
+
+#Mac
+.DS_Store
