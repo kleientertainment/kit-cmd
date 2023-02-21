@@ -24,6 +24,7 @@ type App struct {
 func main() {
 	app := NewApp()
 	app.startup()
+
 }
 
 // NewApp creates a new App application struct
@@ -31,6 +32,7 @@ func NewApp() *App {
 	a := &App{}
 	a.serverDomain = "https://git.klei.com"
 	a.config = &Config{}
+	a.config.WorkingDirectory = ExecutableDirectory()
 	return a
 }
 
@@ -51,9 +53,6 @@ func (a *App) startup() {
 		log.Fatal(err)
 	}
 
-	path, _ := RepoPath()
-	a.config.WorkingDirectory = path
-	fmt.Println(a.config.WorkingDirectory)
 	if err := a.OpenRepository(a.config.WorkingDirectory); err != nil {
 		fmt.Printf("open repository: %s\n", err)
 	}

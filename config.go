@@ -47,6 +47,11 @@ func (a *App) Save(username string, email string) error {
 	return nil
 }
 
-func RepoPath() (string, error) {
-	return filepath.Dir("C:/Users/foxtrot2/Work/kit_cmd/"), nil
+func ExecutableDirectory() string {
+	ex, err := os.Executable()
+	if err != nil {
+		panic(err)
+	}
+	exPath := filepath.Dir(ex)
+	return exPath
 }
