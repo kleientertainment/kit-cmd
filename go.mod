@@ -2,7 +2,10 @@ module pkg.klei.ca/kit_cmd
 
 go 1.19
 
-require github.com/go-git/go-git/v5 v5.5.2
+require (
+	github.com/go-git/go-git/v5 v5.5.2
+	golang.org/x/term v0.5.0
+)
 
 require (
 	github.com/Microsoft/go-winio v0.6.0 // indirect

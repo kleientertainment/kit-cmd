@@ -10,6 +10,17 @@ import (
 	"strings"
 )
 
+func (a *App) PullWithAbort() {
+	err := a.Pull()
+	if err != nil {
+		if errors.Is(err, git.NoErrAlreadyUpToDate) {
+			fmt.Printf("%s\n", err)
+			return
+		}
+		fmt.Printf("%s\n", err)
+	}
+}
+
 func (a *App) OpenRepository(dir string) error {
 	r, err := git.PlainOpen(dir)
 	if err != nil {
@@ -19,7 +30,7 @@ func (a *App) OpenRepository(dir string) error {
 	return nil
 }
 
-func (a *App) Pull() {
+func (a *App) Pull() error {
 	w, err := a.repo.Worktree()
 	if err != nil {
 		log.Fatal(err)
@@ -28,11 +39,12 @@ func (a *App) Pull() {
 		Auth: a.auth,
 	})
 	if err != nil {
-		if errors.Is(err, git.NoErrAlreadyUpToDate) {
-			return
-		}
-		log.Fatal(err)
+		//if errors.Is(err, git.NoErrAlreadyUpToDate) {
+		//	return err
+		//}
+		return err
 	}
+	return nil
 }
 
 func (a *App) LocalModifiedFiles() (map[string]struct{}, error) {
@@ -159,15 +171,15 @@ func (a *App) CloneRepository(repoURL string) {
 	}
 	s := strings.Split(before, "/")
 	name := strings.TrimSpace(s[len(s)-1])
-	//dir := filepath.Join(a.WorkingDirectory, name)
-	tempDir, err := os.MkdirTemp(a.config.WorkingDirectory, name)
+	//dir := filepath.Join(a.RepoDirectory, name)
+	tempDir, err := os.MkdirTemp(a.config.RepoDirectory, name)
 	if err != nil {
 		log.Fatal(err)
 	}
 	//if err := os.Mkdir(dir, os.ModePerm); err != nil {
 	//	log.Fatal(err)
 	//}
-	a.config.WorkingDirectory = tempDir
+	a.config.RepoDirectory = tempDir
 	repo, err := git.PlainClone(tempDir, false, &git.CloneOptions{
 		URL:      repoURL,
 		Auth:     a.auth,

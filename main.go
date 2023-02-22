@@ -19,25 +19,25 @@ type App struct {
 }
 
 // assume run in project directory containing .git folder
-// upon user input, perform git pull
+// perform git pull
 // abort if merge conflict
 func main() {
 	app := NewApp()
 	app.startup()
-
+	app.PullWithAbort()
 }
 
 // NewApp creates a new App application struct
 func NewApp() *App {
 	a := &App{}
-	a.serverDomain = "https://git.klei.com"
 	a.config = &Config{}
-	a.config.WorkingDirectory = ExecutableDirectory()
 	return a
 }
 
 // startup is called when the app starts.
 func (a *App) startup() {
+	a.serverDomain = "https://git.klei.com"
+
 	// read config file
 	if err := a.ReadConfig(); err != nil {
 		if errors.Is(err, io.EOF) {
@@ -48,12 +48,31 @@ func (a *App) startup() {
 			log.Fatal(err)
 		}
 	}
-
+	fmt.Printf("Username: %s, RepoDirectory: %s\n", a.config.Username, a.config.RepoDirectory)
+	fmt.Printf("Use read config? y/n\n")
+	var input string
+	fmt.Scanln(&input)
+	switch input {
+	case "n":
+		a.config.RepoDirectory = RepoDirectory()
+		username, password, err := credentials()
+		if err != nil {
+			log.Fatal(err)
+		}
+		a.config.Username = username
+		a.config.PersonalAccessToken = password
+	case "y":
+	default:
+	}
+	if err := a.OpenRepository(a.config.RepoDirectory); err != nil {
+		log.Fatalf("could not open repository: %s\n", err)
+	}
 	if err := a.BasicAuth(); err != nil {
 		log.Fatal(err)
 	}
 
-	if err := a.OpenRepository(a.config.WorkingDirectory); err != nil {
-		fmt.Printf("open repository: %s\n", err)
+	err := a.WriteConfig()
+	if err != nil {
+		log.Fatal(err)
 	}
 }
