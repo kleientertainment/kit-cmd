@@ -16,27 +16,18 @@ type App struct {
 	config       *Config
 }
 
-// assume run in project directory containing .git folder
-// perform git pull
-// abort if merge conflict
-func main() {
-	initFlags()
-	cfg := newConfig()
-	app := NewApp(cfg)
-	app.startup()
-	app.PullWithAbort()
-}
+var app *App
 
-// NewApp creates a new App application struct
-func NewApp(cfg *Config) *App {
-	a := &App{}
-	a.config = cfg
-	return a
+func initializeApplication() {
+	initFlags()
+	app = &App{}
+	app.config = newConfig()
+	app.startup()
 }
 
 // startup is called when the app starts.
 func (a *App) startup() {
-	// print config
+	// debug print config
 	fmt.Printf("%+v\n", a.config)
 
 	// create basic auth with username and personal access token
@@ -49,4 +40,8 @@ func (a *App) startup() {
 	if err := a.OpenRepository(a.config.RepoDirectory); err != nil {
 		log.Fatalf("could not open repository: %s\n", err)
 	}
+}
+
+func main() {
+	initializeApplication()
 }
