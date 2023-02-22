@@ -3,20 +3,48 @@ package main
 import (
 	"bufio"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"golang.org/x/term"
 	"log"
 	"os"
 	"path/filepath"
-	"strings"
 	"syscall"
 )
+
+var config struct {
+	repoDirectory       string
+	personalAccessToken string
+	username            string
+	email               string
+	serverDomain        string
+}
 
 type Config struct {
 	RepoDirectory       string
 	PersonalAccessToken string
 	Username            string
 	Email               string
+	ServerDomain        string
+}
+
+func initFlags() {
+	flag.StringVar(&config.repoDirectory, "repoDirectory", "", "repository directory")
+	flag.StringVar(&config.personalAccessToken, "pat", "", "personal access token")
+	flag.StringVar(&config.username, "username", "", "username")
+	flag.StringVar(&config.email, "email", "", "author email")
+	flag.StringVar(&config.serverDomain, "serverDomain", "https://git.klei.com", "server domain")
+	flag.Parse()
+}
+
+func newConfig() *Config {
+	return &Config{
+		RepoDirectory:       config.repoDirectory,
+		PersonalAccessToken: config.personalAccessToken,
+		Username:            config.username,
+		Email:               config.email,
+		ServerDomain:        config.serverDomain,
+	}
 }
 
 func (a *App) ReadConfig() error {
@@ -87,5 +115,5 @@ func credentials() (string, string, error) {
 	}
 	fmt.Println() // get rid of floating lack of newline
 	password := string(bytePassword)
-	return strings.TrimSpace(username), strings.TrimSpace(password), nil
+	return username, password, nil
 }
