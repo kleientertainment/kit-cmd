@@ -224,16 +224,14 @@ func (a *App) Commit(msg string) {
 	}
 }
 
-func (a *App) Push() {
+func (a *App) Push() error {
 	err := a.repo.Push(&git.PushOptions{
 		Auth: a.auth,
 	})
-	if errors.Is(err, git.NoErrAlreadyUpToDate) {
-		return
-	}
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
+	return nil
 }
 
 func (a *App) Status() (*git.Status, error) {
