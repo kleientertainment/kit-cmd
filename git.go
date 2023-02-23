@@ -10,15 +10,16 @@ import (
 	"strings"
 )
 
-func (a *App) PullWithAbort() {
+func (a *App) PullWithAbort() error {
 	err := a.Pull()
 	if err != nil {
-		if errors.Is(err, git.NoErrAlreadyUpToDate) {
-			fmt.Printf("%s\n", err)
-			return
-		}
 		fmt.Printf("%s\n", err)
+		if errors.Is(err, git.NoErrAlreadyUpToDate) {
+			return nil
+		}
+		return err
 	}
+	return nil
 }
 
 func (a *App) OpenRepository(dir string) error {

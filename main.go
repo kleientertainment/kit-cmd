@@ -7,6 +7,7 @@ import (
 	gitHTTP "github.com/go-git/go-git/v5/plumbing/transport/http"
 	"log"
 	"os/exec"
+	"strings"
 )
 
 // App struct
@@ -44,17 +45,48 @@ func (a *App) startup() {
 func main() {
 	initializeApplication()
 
-	err := ExecPull()
-	if err != nil {
-		Alert(err)
+	//err := ExecPull()
+	//if err != nil {
+	//	Alert(err)
+	//}
+
+	lockers := []string{"WindowsFileLocker.exe", "photoshop.exe", "animate.exe", "gameXYZ.exe"}
+	lockFlag := false
+	for _, s := range lockers {
+		running, err := imageNameRunning(s)
+		if err != nil {
+			log.Fatal(err)
+		}
+		if running == true {
+			lockFlag = true
+			fmt.Printf("Potentially locking %s open, please close\n", s)
+		}
 	}
+	if lockFlag == false {
+	} // proceed
+}
+
+// imageName: animate.exe , photoshop.exe, gameXYZ.exe, WindowsFileLocker.exe
+func imageNameRunning(imageName string) (running bool, err error) {
+	filterArg := "IMAGENAME eq " + imageName
+	cmd := exec.Command("tasklist", "/fi", filterArg)
+	stdout, err := cmd.Output()
+	if err != nil {
+		return false, err
+	}
+	out := string(stdout)
+	if strings.Contains(out, imageName) {
+		fmt.Printf("%s\n", out)
+		return true, nil
+	}
+	return false, nil
 }
 
 func ExecPull() error {
 	var err error
 	var cmd *exec.Cmd
 
-	cmd = exec.Command("git", "pull", "--rebase=false") // --rebase flag specify for system-specific config
+	cmd = exec.Command("cmd", "/C", "git", "pull", "--no-rebase") // same as --rebase=false. specifies to use merge commit
 	if err = cmdWrapperPrintOutput(cmd, app.config.RepoDirectory); err != nil {
 		if mErr := ExecAbortMerge(); mErr != nil {
 			return fmt.Errorf("pull error. could not abort merge: %s: %s\n", err, mErr)
@@ -87,9 +119,3 @@ func cmdWrapperPrintOutput(cmd *exec.Cmd, dir string) error {
 func Alert(e error) {
 	fmt.Printf("Get a programmer to help with this:\n%s\n", e)
 }
-
-//
-//err = app.Push()
-//if err != nil {
-//	Alert(err, "Push")
-//}
