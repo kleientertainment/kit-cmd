@@ -46,7 +46,7 @@ func main() {
 
 	err := ExecPull()
 	if err != nil {
-		fmt.Printf("%s\n", err)
+		Alert(err)
 	}
 }
 
@@ -57,9 +57,9 @@ func ExecPull() error {
 	cmd = exec.Command("git", "pull", "--rebase=false") // --rebase flag specify for system-specific config
 	if err = cmdWrapperPrintOutput(cmd, app.config.RepoDirectory); err != nil {
 		if mErr := ExecAbortMerge(); mErr != nil {
-			return fmt.Errorf("pull error. could not abort merge")
+			return fmt.Errorf("pull error. could not abort merge: %s: %s\n", err, mErr)
 		}
-		return fmt.Errorf("pull error. merge aborted")
+		return fmt.Errorf("pull error. merge aborted after initiation: %s\n", err)
 	}
 	fmt.Printf("Pull successful!\n")
 	return nil
@@ -84,8 +84,8 @@ func cmdWrapperPrintOutput(cmd *exec.Cmd, dir string) error {
 	return nil
 }
 
-func Alert(e error, method string) {
-	fmt.Printf("Get a programmer to help with this:\n%s error: %s\n", method, e)
+func Alert(e error) {
+	fmt.Printf("Get a programmer to help with this:\n%s\n", e)
 }
 
 //
