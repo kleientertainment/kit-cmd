@@ -45,29 +45,59 @@ func (a *App) startup() {
 func main() {
 	initializeApplication()
 
-	//err := ExecPull()
+	//status, err := app.Status()
 	//if err != nil {
-	//	Alert(err)
+	//	log.Fatalf("status error: %s\n", err)
+	//}
+	//fmt.Printf("%s\n", status.String())
+	//for k, v := range *status {
+	//	fmt.Printf("%s %+v\n", k, *v)
 	//}
 
-	lockers := []string{"WindowsFileLocker.exe", "photoshop.exe", "animate.exe", "gameXYZ.exe"}
-	lockFlag := false
-	for _, s := range lockers {
-		running, err := imageNameRunning(s)
-		if err != nil {
-			log.Fatal(err)
-		}
-		if running == true {
-			lockFlag = true
-			fmt.Printf("Potentially locking %s open, please close\n", s)
-		}
+	err := ExecPull()
+	if err != nil {
+		Alert(err)
 	}
-	if lockFlag == false {
-	} // proceed
+	//	status, err := app.Status()
+	//	if err != nil {
+	//		log.Fatalf("status error: %s\n", err)
+	//	}
+	//	fmt.Printf("%s\n", status.String())
+	//}
+
+	//lockers := []string{"WindowsFileLocker.exe", "photoshop.exe", "animate.exe", "gameXYZ.exe"}
+	//lockFlag := false
+	//for _, s := range lockers {
+	//	running, err := imageNameRunning(s)
+	//	if err != nil {
+	//		log.Fatal(err)
+	//	}
+	//	if running == true {
+	//		lockFlag = true
+	//		fmt.Printf("Potentially locking %s open, please close\n", s)
+	//	}
+	//}
+
+	//if lockFlag == false { // proceed
+	//}
 }
 
+//func imageNamePIDs(imageName string) ([]int, error) {
+//	pids := make([]int, 5)
+//	filterArg := "IMAGENAME eq " + imageName
+//	cmd := exec.Command("tasklist", "/fi", filterArg)
+//	stdout, err := cmd.Output()
+//	if err != nil {
+//		return nil, err
+//	}
+//	//out := string(stdout)
+//	// parse out for pid, add to pids
+//
+//	return pids, nil
+//}
+
 // imageName: animate.exe , photoshop.exe, gameXYZ.exe, WindowsFileLocker.exe
-func imageNameRunning(imageName string) (running bool, err error) {
+func imageNameRunning(imageName string) (bool, error) {
 	filterArg := "IMAGENAME eq " + imageName
 	cmd := exec.Command("tasklist", "/fi", filterArg)
 	stdout, err := cmd.Output()
