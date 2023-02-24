@@ -42,18 +42,22 @@ func (a *App) startup() {
 }
 
 // this is a pull script
+// requires git configured on command line with creds for the repo
 func main() {
 	var err error
 	initializeApplication()
 
-	if err = PullCmd("--ff-only"); err != nil {
-		if err = PullCmd("--no-rebase"); err != nil {
-			fmt.Printf("Could not pull. Attempting to abort %s\n", err)
+	output, err := PullCmd("--ff-only")
+	if err != nil {
+		fmt.Printf("%s\n", output)
+		output, err = PullCmd("--no-rebase")
+
+		if err != nil {
+			fmt.Printf("Get a programmer to help with this pull!\n-----------------------\nCould not pull. Attempting cleanup...\n")
 			if err = AbortMerge(); err != nil {
-				fmt.Printf("%s\n", err)
+				fmt.Printf("Merge abort error: %s\n", err)
 			}
 		}
-		//err = AbortMerge()
 	}
 
 	status, err := app.StatusCmd()
@@ -62,18 +66,19 @@ func main() {
 	}
 	fmt.Printf("%s\n", status)
 
-	//lockers := []string{"WindowsFileLocker.exe", "photoshop.exe", "animate.exe", "gameXYZ.exe"}
+	fmt.Printf("-----------------------\nSearching for locking programs...\n")
+	lockers := []string{"WindowsFileLocker.exe", "Photoshop.exe", "Animate.exe", "GLN_r.exe", "GLN.exe"}
 	//lockFlag := false
-	//for _, s := range lockers {
-	//	running, err := imageNameRunning(s)
-	//	if err != nil {
-	//		log.Fatal(err)
-	//	}
-	//	if running == true {
-	//		lockFlag = true
-	//		fmt.Printf("Potentially locking %s open, please close\n", s)
-	//	}
-	//}
+	for _, s := range lockers {
+		running, err := imageNameRunning(s)
+		if err != nil {
+			log.Fatal(err)
+		}
+		if running == true {
+			//lockFlag = true
+			fmt.Printf("Potentially locking %s open, consider closing\n", s)
+		}
+	}
 
 	//if lockFlag == false { // proceed
 	//}
@@ -103,7 +108,6 @@ func imageNameRunning(imageName string) (bool, error) {
 	}
 	out := string(stdout)
 	if strings.Contains(out, imageName) {
-		fmt.Printf("%s\n", out)
 		return true, nil
 	}
 	return false, nil

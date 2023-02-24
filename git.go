@@ -13,47 +13,41 @@ import (
 
 func (a *App) StatusCmd() (string, error) {
 	cmd := exec.Command("cmd", "/C", "git", "status")
-	cmd.Dir = a.config.RepoDirectory
+	output, err := cmdWrapper(cmd, app.config.RepoDirectory)
+	if err != nil {
+		return "", err
+	}
+	return output, nil
+}
+
+func PullCmd(param string) (string, error) {
+	var err error
+	var cmd *exec.Cmd
+
+	cmd = exec.Command("cmd", "/C", "git", "pull", param)
+	output, err := cmdWrapper(cmd, app.config.RepoDirectory)
+	if err != nil {
+		return "", err
+	}
+	return output, nil
+}
+
+func AbortMerge() error {
+	cmd := exec.Command("git", "merge", "--abort")
+	_, err := cmdWrapper(cmd, app.config.RepoDirectory)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func cmdWrapper(cmd *exec.Cmd, dir string) (string, error) {
+	cmd.Dir = dir
 	stdout, err := cmd.Output()
 	if err != nil {
 		return "", err
 	}
 	return string(stdout), nil
-}
-
-func PullCmd(param string) error {
-	var err error
-	var cmd *exec.Cmd
-
-	cmd = exec.Command("cmd", "/C", "git", "pull", param)
-	if err = cmdWrapperPrintOutput(cmd, app.config.RepoDirectory); err != nil {
-		//if mErr := ExecAbortMerge(); mErr != nil {
-		//	return fmt.Errorf("pull error. could not abort merge: %s: %s\n", err, mErr)
-		//}
-		//return fmt.Errorf("pull error. merge aborted after initiation: %s\n", err)
-		return err
-	}
-	fmt.Printf("Pull successful!\n")
-	return nil
-}
-
-func AbortMerge() error {
-	cmd := exec.Command("git", "merge", "--abort")
-	if err := cmdWrapperPrintOutput(cmd, app.config.RepoDirectory); err != nil {
-		return fmt.Errorf("merge abort error: %s\n", err)
-	}
-	return nil
-}
-
-func cmdWrapperPrintOutput(cmd *exec.Cmd, dir string) error {
-	cmd.Dir = dir
-	stdout, err := cmd.Output()
-	if err != nil {
-		return err
-	}
-	// Print the output
-	fmt.Println(string(stdout))
-	return nil
 }
 
 func (a *App) PullWithAbort() error {
