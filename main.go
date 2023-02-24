@@ -43,27 +43,24 @@ func (a *App) startup() {
 
 // this is a pull script
 func main() {
+	var err error
 	initializeApplication()
 
-	//status, err := app.Status()
-	//if err != nil {
-	//	log.Fatalf("status error: %s\n", err)
-	//}
-	//fmt.Printf("%s\n", status.String())
-	//for k, v := range *status {
-	//	fmt.Printf("%s %+v\n", k, *v)
-	//}
-
-	err := ExecPull()
-	if err != nil {
-		Alert(err)
+	if err = PullCmd("--ff-only"); err != nil {
+		if err = PullCmd("--no-rebase"); err != nil {
+			fmt.Printf("Could not pull. Attempting to abort %s\n", err)
+			if err = AbortMerge(); err != nil {
+				fmt.Printf("%s\n", err)
+			}
+		}
+		//err = AbortMerge()
 	}
-	//	status, err := app.Status()
-	//	if err != nil {
-	//		log.Fatalf("status error: %s\n", err)
-	//	}
-	//	fmt.Printf("%s\n", status.String())
-	//}
+
+	status, err := app.StatusCmd()
+	if err != nil {
+		log.Fatalf("status error: %s\n", err)
+	}
+	fmt.Printf("%s\n", status)
 
 	//lockers := []string{"WindowsFileLocker.exe", "photoshop.exe", "animate.exe", "gameXYZ.exe"}
 	//lockFlag := false
@@ -110,40 +107,6 @@ func imageNameRunning(imageName string) (bool, error) {
 		return true, nil
 	}
 	return false, nil
-}
-
-func ExecPull() error {
-	var err error
-	var cmd *exec.Cmd
-
-	cmd = exec.Command("cmd", "/C", "git", "pull", "--no-rebase") // same as --rebase=false. specifies to use merge commit
-	if err = cmdWrapperPrintOutput(cmd, app.config.RepoDirectory); err != nil {
-		if mErr := ExecAbortMerge(); mErr != nil {
-			return fmt.Errorf("pull error. could not abort merge: %s: %s\n", err, mErr)
-		}
-		return fmt.Errorf("pull error. merge aborted after initiation: %s\n", err)
-	}
-	fmt.Printf("Pull successful!\n")
-	return nil
-}
-
-func ExecAbortMerge() error {
-	cmd := exec.Command("git", "merge", "--abort")
-	if err := cmdWrapperPrintOutput(cmd, app.config.RepoDirectory); err != nil {
-		return fmt.Errorf("merge abort error: %s\n", err)
-	}
-	return nil
-}
-
-func cmdWrapperPrintOutput(cmd *exec.Cmd, dir string) error {
-	cmd.Dir = dir
-	stdout, err := cmd.Output()
-	if err != nil {
-		return err
-	}
-	// Print the output
-	fmt.Println(string(stdout))
-	return nil
 }
 
 func Alert(e error) {

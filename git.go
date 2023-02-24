@@ -7,8 +7,54 @@ import (
 	"github.com/go-git/go-git/v5/plumbing"
 	"log"
 	"os"
+	"os/exec"
 	"strings"
 )
+
+func (a *App) StatusCmd() (string, error) {
+	cmd := exec.Command("cmd", "/C", "git", "status")
+	cmd.Dir = a.config.RepoDirectory
+	stdout, err := cmd.Output()
+	if err != nil {
+		return "", err
+	}
+	return string(stdout), nil
+}
+
+func PullCmd(param string) error {
+	var err error
+	var cmd *exec.Cmd
+
+	cmd = exec.Command("cmd", "/C", "git", "pull", param)
+	if err = cmdWrapperPrintOutput(cmd, app.config.RepoDirectory); err != nil {
+		//if mErr := ExecAbortMerge(); mErr != nil {
+		//	return fmt.Errorf("pull error. could not abort merge: %s: %s\n", err, mErr)
+		//}
+		//return fmt.Errorf("pull error. merge aborted after initiation: %s\n", err)
+		return err
+	}
+	fmt.Printf("Pull successful!\n")
+	return nil
+}
+
+func AbortMerge() error {
+	cmd := exec.Command("git", "merge", "--abort")
+	if err := cmdWrapperPrintOutput(cmd, app.config.RepoDirectory); err != nil {
+		return fmt.Errorf("merge abort error: %s\n", err)
+	}
+	return nil
+}
+
+func cmdWrapperPrintOutput(cmd *exec.Cmd, dir string) error {
+	cmd.Dir = dir
+	stdout, err := cmd.Output()
+	if err != nil {
+		return err
+	}
+	// Print the output
+	fmt.Println(string(stdout))
+	return nil
+}
 
 func (a *App) PullWithAbort() error {
 	err := a.Pull()
@@ -37,7 +83,7 @@ func (a *App) Pull() error {
 		log.Fatal(err)
 	}
 	err = w.Pull(&git.PullOptions{
-		Auth: a.auth,
+		//Auth: a.auth,
 	})
 	if err != nil {
 		//if errors.Is(err, git.NoErrAlreadyUpToDate) {
