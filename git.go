@@ -43,7 +43,7 @@ func AbortMerge() error {
 
 func cmdWrapper(cmd *exec.Cmd, dir string) (string, error) {
 	cmd.Dir = dir
-	stdout, err := cmd.Output()
+	stdout, err := cmd.CombinedOutput()
 	if err != nil {
 		return "", err
 	}

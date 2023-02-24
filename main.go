@@ -56,6 +56,8 @@ func main() {
 			fmt.Printf("Get a programmer to help with this pull!\n-----------------------\nCould not pull. Attempting cleanup...\n")
 			if err = AbortMerge(); err != nil {
 				fmt.Printf("Merge abort error: %s\n", err)
+			} else {
+				fmt.Printf("Cleaned!\n\n")
 			}
 		}
 	}
