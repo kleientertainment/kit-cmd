@@ -6,7 +6,9 @@ import (
 	"github.com/go-git/go-git/v5/plumbing/transport"
 	gitHTTP "github.com/go-git/go-git/v5/plumbing/transport/http"
 	"log"
+	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 )
 
@@ -35,6 +37,15 @@ func (a *App) startup() {
 		Password: a.config.PersonalAccessToken,
 	}
 
+	path, err := os.Getwd()
+	if err != nil {
+		log.Fatal(err)
+	}
+	for i := 0; i < 3; i++ {
+		path = filepath.Dir(path)
+	}
+	app.config.RepoDirectory = path
+
 	// open repository
 	if err := a.OpenRepository(a.config.RepoDirectory); err != nil {
 		log.Fatalf("could not open repository: %s\n", err)
@@ -44,7 +55,7 @@ func (a *App) startup() {
 // this is a pull script
 // requires git configured on command line with creds for the repo
 func main() {
-	var err error
+	//var err error
 	initializeApplication()
 
 	output, err := PullCmd("--ff-only")
@@ -59,6 +70,20 @@ func main() {
 			} else {
 				fmt.Printf("Cleaned!\n\n")
 			}
+
+			fmt.Printf("-----------------------\nSearching for locking programs...\n")
+			lockers := []string{"WindowsFileLocker.exe", "Photoshop.exe", "Animate.exe", "GLN_r.exe", "GLN.exe"}
+			//lockFlag := false
+			for _, s := range lockers {
+				running, err := imageNameRunning(s)
+				if err != nil {
+					fmt.Printf("%s\n", err)
+				}
+				if running == true {
+					//lockFlag = true
+					fmt.Printf("Potentially locking %s open, watch out for file locks!\n", s)
+				}
+			}
 		}
 	}
 
@@ -67,23 +92,10 @@ func main() {
 		log.Fatalf("status error: %s\n", err)
 	}
 	fmt.Printf("%s\n", status)
+}
 
-	fmt.Printf("-----------------------\nSearching for locking programs...\n")
-	lockers := []string{"WindowsFileLocker.exe", "Photoshop.exe", "Animate.exe", "GLN_r.exe", "GLN.exe"}
-	//lockFlag := false
-	for _, s := range lockers {
-		running, err := imageNameRunning(s)
-		if err != nil {
-			log.Fatal(err)
-		}
-		if running == true {
-			//lockFlag = true
-			fmt.Printf("Potentially locking %s open, consider closing\n", s)
-		}
-	}
-
-	//if lockFlag == false { // proceed
-	//}
+func exit() {
+	fmt.Scanf("g") // hacky way to keep the console window open after execution finishes
 }
 
 //func imageNamePIDs(imageName string) ([]int, error) {

@@ -29,7 +29,7 @@ type Config struct {
 }
 
 func initFlags() {
-	flag.StringVar(&config.repoDirectory, "repoDirectory", "", "repository directory")
+	flag.StringVar(&config.repoDirectory, "repoDirectory", "", "repository directory root")
 	flag.StringVar(&config.personalAccessToken, "pat", "", "personal access token")
 	flag.StringVar(&config.username, "username", "", "username")
 	flag.StringVar(&config.email, "email", "", "author email")
