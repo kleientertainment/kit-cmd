@@ -1,4 +1,4 @@
-package main
+package internal
 
 import (
 	"bufio"
@@ -28,7 +28,7 @@ type Config struct {
 	ServerDomain        string
 }
 
-func initFlags() {
+func InitFlags() {
 	flag.StringVar(&config.repoDirectory, "repoDirectory", "", "repository directory root")
 	flag.StringVar(&config.personalAccessToken, "pat", "", "personal access token")
 	flag.StringVar(&config.username, "username", "", "username")
@@ -37,7 +37,7 @@ func initFlags() {
 	flag.Parse()
 }
 
-func newConfig() *Config {
+func NewConfig() *Config {
 	return &Config{
 		RepoDirectory:       config.repoDirectory,
 		PersonalAccessToken: config.personalAccessToken,
@@ -47,7 +47,7 @@ func newConfig() *Config {
 	}
 }
 
-func (a *App) ReadConfig() error {
+func (a *main.App) ReadConfig() error {
 	file, err := os.Open("config.json")
 	if err != nil {
 		return err
@@ -62,7 +62,7 @@ func (a *App) ReadConfig() error {
 	return nil
 }
 
-func (a *App) WriteConfig() error {
+func (a *main.App) WriteConfig() error {
 	data, err := json.MarshalIndent(a.config, "", "  ")
 	if err != nil {
 		return err
@@ -74,7 +74,7 @@ func (a *App) WriteConfig() error {
 	return nil
 }
 
-func (a *App) Save(username string, email string) error {
+func (a *main.App) Save(username string, email string) error {
 	a.config.Username = username
 	a.config.Email = email
 	a.WriteConfig()
@@ -95,7 +95,7 @@ func RepoDirectory() string {
 	if err != nil {
 		log.Fatal(err)
 	}
-	dirname = filepath.Join(dirname, "Work", "go-git-test")
+	dirname = filepath.Join(dirname, "Work", "go-kit_lib-test")
 	return dirname
 }
 
@@ -116,4 +116,12 @@ func credentials() (string, string, error) {
 	fmt.Println() // get rid of floating lack of newline
 	password := string(bytePassword)
 	return username, password, nil
+}
+
+func (a *main.App) ReadFile(file string) string {
+	content, err := os.ReadFile(file)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return string(content)
 }

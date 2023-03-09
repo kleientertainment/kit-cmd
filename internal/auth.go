@@ -1,7 +1,8 @@
-package main
+package internal
 
+/*
 import (
-	gitHTTP "github.com/go-git/go-git/v5/plumbing/transport/http"
+	gitHTTP "github.com/go-kit_lib/go-kit_lib/v5/plumbing/transport/http"
 	"strings"
 )
 
@@ -23,3 +24,5 @@ func (a *App) BasicAuth() error {
 	}
 	return nil
 }
+
+*/
