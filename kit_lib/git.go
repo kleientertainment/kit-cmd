@@ -9,7 +9,7 @@ var ErrUpToDate = errors.New("up to date")
 var ErrUnborn = errors.New("unborn repo")
 var ErrNoMergePossible = errors.New("no merge possible")
 
-func Pull(repo *git.Repository) error {
+func Pull(repo *git.Repository, remoteRef string) error {
 	// locate remote
 	remote, err := repo.Remotes.Lookup("origin")
 	if err != nil {
@@ -20,7 +20,7 @@ func Pull(repo *git.Repository) error {
 		return err
 	}
 	// get corresponding remote reference
-	remoteBranch, err := repo.References.Lookup("refs/remotes/origin/main")
+	remoteBranch, err := repo.References.Lookup(remoteRef)
 	if err != nil {
 		return err
 	}
@@ -41,7 +41,7 @@ func Pull(repo *git.Repository) error {
 	} else if analysis&git.MergeAnalysisUnborn == git.MergeAnalysisUnborn {
 		return ErrUnborn
 	} else if (analysis&git.MergeAnalysisFastForward == git.MergeAnalysisFastForward) && (analysis&git.MergeAnalysisNormal == git.MergeAnalysisNormal) {
-		// do fast forward
+		// do fast-forward
 	} else if analysis&git.MergeAnalysisNormal == git.MergeAnalysisNormal {
 		// do normal merge
 	} else {

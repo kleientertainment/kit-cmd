@@ -58,11 +58,11 @@ func main() {
 	//var err error
 	//initializeApplication()
 	fmt.Println("hi")
-	r, err := git.OpenRepository("/Users/alex/work/kit/Repo2")
+	repo, err := git.OpenRepository("/Users/alex/work/kit/Repo2")
 	if err != nil {
 		panic(err)
 	}
-	if err := kit_lib.Pull(r); err != nil {
+	if err := kit_lib.Pull(repo, "refs/remotes/origin/main"); err != nil {
 		log.Fatal(err)
 	}
 	/*
