@@ -1,6 +1,9 @@
 package kit_lib
 
-import "github.com/libgit2/git2go/v34"
+import (
+	"fmt"
+	"github.com/libgit2/git2go/v34"
+)
 
 func Pull(repo *git.Repository) error {
 	// locate remote
@@ -13,7 +16,7 @@ func Pull(repo *git.Repository) error {
 		return err
 	}
 	// get corresponding remote reference
-	remoteBranch, err := repo.References.Lookup("refs/remotes/origin/branch_name")
+	remoteBranch, err := repo.References.Lookup("refs/remotes/origin/main")
 	if err != nil {
 		return err
 	}
@@ -29,12 +32,14 @@ func Pull(repo *git.Repository) error {
 		return err
 	}
 	// check value of analysis to see what merge is available
-	if (analysis&git.MergeAnalysisFastForward == git.MergeAnalysisFastForward) && (analysis&git.MergeAnalysisNormal == git.MergeAnalysisNormal) {
-		// fast-forwardable
-	} else if analysis&git.MergeAnalysisUpToDate == git.MergeAnalysisUpToDate {
-		// up to date
+	if analysis&git.MergeAnalysisUpToDate == git.MergeAnalysisUpToDate {
+		return fmt.Errorf("up to date")
+	} else if (analysis&git.MergeAnalysisFastForward == git.MergeAnalysisFastForward) && (analysis&git.MergeAnalysisNormal == git.MergeAnalysisNormal) {
+		return fmt.Errorf("fastforwardable")
+	} else if analysis&git.MergeAnalysisUnborn == git.MergeAnalysisUnborn {
+		return fmt.Errorf("unborn")
 	} else {
-		// unhandled, throw error
+		return fmt.Errorf("normal")
 	}
 
 	return nil
