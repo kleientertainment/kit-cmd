@@ -1,9 +1,13 @@
 package kit_lib
 
 import (
-	"fmt"
+	"errors"
 	"github.com/libgit2/git2go/v34"
 )
+
+var ErrUpToDate = errors.New("up to date")
+var ErrUnborn = errors.New("unborn repo")
+var ErrNoMergePossible = errors.New("no merge possible")
 
 func Pull(repo *git.Repository) error {
 	// locate remote
@@ -33,13 +37,15 @@ func Pull(repo *git.Repository) error {
 	}
 	// check value of analysis to see what merge is available
 	if analysis&git.MergeAnalysisUpToDate == git.MergeAnalysisUpToDate {
-		return fmt.Errorf("up to date")
-	} else if (analysis&git.MergeAnalysisFastForward == git.MergeAnalysisFastForward) && (analysis&git.MergeAnalysisNormal == git.MergeAnalysisNormal) {
-		return fmt.Errorf("fastforwardable")
+		return ErrUpToDate
 	} else if analysis&git.MergeAnalysisUnborn == git.MergeAnalysisUnborn {
-		return fmt.Errorf("unborn")
+		return ErrUnborn
+	} else if (analysis&git.MergeAnalysisFastForward == git.MergeAnalysisFastForward) && (analysis&git.MergeAnalysisNormal == git.MergeAnalysisNormal) {
+		// do fast forward
+	} else if analysis&git.MergeAnalysisNormal == git.MergeAnalysisNormal {
+		// do normal merge
 	} else {
-		return fmt.Errorf("normal")
+		return ErrNoMergePossible
 	}
 
 	return nil
