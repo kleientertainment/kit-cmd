@@ -7,7 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"pkg.klei.ca/kit_cmd/internal"
+	"pkg.klei.ca/kit_cmd/kit_lib"
 	"strings"
 )
 
@@ -16,15 +16,15 @@ type App struct {
 	serverDomain string
 	repo         *git.Repository
 	//auth         transport.AuthMethod
-	config *internal.Config
+	config *Config
 }
 
 var app *App
 
 func initializeApplication() {
-	internal.initFlags()
+	InitFlags()
 	app = &App{}
-	app.config = internal.newConfig()
+	app.config = NewConfig()
 	app.startup()
 }
 
@@ -56,8 +56,15 @@ func (a *App) startup() {
 // this is a pull script
 func main() {
 	//var err error
-	initializeApplication()
-
+	//initializeApplication()
+	fmt.Println("hi")
+	r, err := git.OpenRepository("/Users/alex/work/kit/Repo2")
+	if err != nil {
+		panic(err)
+	}
+	if err := kit_lib.Pull(r); err != nil {
+		log.Fatal(err)
+	}
 	/*
 		output, err := PullCmd("--ff-only")
 		if err != nil {

@@ -1,4 +1,4 @@
-package internal
+package main
 
 import (
 	"bufio"
@@ -47,7 +47,7 @@ func NewConfig() *Config {
 	}
 }
 
-func (a *main.App) ReadConfig() error {
+func (a *App) ReadConfig() error {
 	file, err := os.Open("config.json")
 	if err != nil {
 		return err
@@ -62,7 +62,7 @@ func (a *main.App) ReadConfig() error {
 	return nil
 }
 
-func (a *main.App) WriteConfig() error {
+func (a *App) WriteConfig() error {
 	data, err := json.MarshalIndent(a.config, "", "  ")
 	if err != nil {
 		return err
@@ -74,7 +74,7 @@ func (a *main.App) WriteConfig() error {
 	return nil
 }
 
-func (a *main.App) Save(username string, email string) error {
+func (a *App) Save(username string, email string) error {
 	a.config.Username = username
 	a.config.Email = email
 	a.WriteConfig()
@@ -118,7 +118,7 @@ func credentials() (string, string, error) {
 	return username, password, nil
 }
 
-func (a *main.App) ReadFile(file string) string {
+func (a *App) ReadFile(file string) string {
 	content, err := os.ReadFile(file)
 	if err != nil {
 		log.Fatal(err)

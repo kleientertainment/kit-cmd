@@ -1,4 +1,4 @@
-package internal
+package kit_lib
 
 /*
 func TestGit2Go(t *testing.T) {

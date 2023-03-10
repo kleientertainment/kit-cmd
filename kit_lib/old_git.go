@@ -1,4 +1,4 @@
-package internal
+package kit_lib
 
 /*
 import (
